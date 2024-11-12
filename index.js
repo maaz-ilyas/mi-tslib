@@ -1,11 +1,12 @@
-const firebase = require("firebase/app");
-require("firebase/firestore");
+import { initializeApp } from "firebase/app";
+import { getFirestore, collection, getDocs } from "firebase/firestore";
 
 let firebaseApp;
+let firestore;
 
-function initializeFirebase() {
+export function initializeFirebase() {
   if (!firebaseApp) {
-    firebaseApp = firebase.initializeApp({
+    firebaseApp = initializeApp({
       apiKey: "AIzaSyB2EPNPKMV2ZhzVowFxFGA-mIi2wU1rHCQ",
       authDomain: "ludo-4de39.firebaseapp.com",
       projectId: "ludo-4de39",
@@ -13,38 +14,25 @@ function initializeFirebase() {
       messagingSenderId: "897466104347",
       appId: "1:897466104347:android:c1d1d3cee1d5d9628056be",
     });
+       firestore = getFirestore(firebaseApp);
   }
 }
 
-async function getUsers() {
-  if (!firebaseApp) {
+export async function getUsers() {
+  if (!firestore) {
     throw new Error(
       "Firebase has not been initialized. Please call initializeFirebase first."
     );
   }
 
   try {
-    const firestore = firebaseApp.firestore();
-    const snapshot = await firestore.collection("users").get();
-    const users = snapshot.docs.map((doc) => ({ id: doc.id, ...doc.data() }));
+    const querySnapshot = await getDocs(collection(firestore, "users"));
+    const users = querySnapshot.docs.map((doc) => ({
+      id: doc.id,
+      ...doc.data(),
+    }));
     return users;
   } catch (error) {
     throw new Error("Failed to fetch users: " + error.message);
   }
 }
-
-async function main() {
-  try {
-    initializeFirebase();
-    const users = await getUsers();
-    console.log("Fetched users:", users);
-  } catch (error) {
-    console.error("Error:", error);
-  }
-}
-
-if (require.main === module) {
-  main();
-}
-
-module.exports = { initializeFirebase, getUsers };
