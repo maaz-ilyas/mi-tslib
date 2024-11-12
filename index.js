@@ -4,24 +4,20 @@ import { getFirestore, doc, onSnapshot } from "firebase/firestore";
 let firebaseApp;
 let firestore;
 
-export function initializeFirebase() {
+export function initializeFirebase(keys) {
   if (!firebaseApp) {
-    firebaseApp = initializeApp({
-      apiKey: "AIzaSyB2EPNPKMV2ZhzVowFxFGA-mIi2wU1rHCQ",
-      authDomain: "ludo-4de39.firebaseapp.com",
-      projectId: "ludo-4de39",
-      storageBucket: "ludo-4de39.firebasestorage.app",
-      messagingSenderId: "897466104347",
-      appId: "1:897466104347:android:c1d1d3cee1d5d9628056be",
-    });
+    firebaseApp = initializeApp(keys);
     firestore = getFirestore(firebaseApp);
   }
 }
 
 // Function to get real-time updates on a specified document
-export function getData(collectionName, docId, callback) {
+export function getData(keys, collectionName, docId, callback) {
+  if(!keys){
+    throw new Error("Please provide the keys.");
+  }
   // Ensure Firebase is initialized
-  initializeFirebase();
+  initializeFirebase(keys);
 
   if (!firestore) {
     throw new Error("Firebase has not been initialized.");
