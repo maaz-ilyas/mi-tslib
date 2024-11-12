@@ -1,11 +1,10 @@
-// index.js
 const firebase = require("firebase/app");
 require("firebase/firestore");
 
 let firebaseApp;
 
 function initializeFirebase() {
-  if (!firebase.apps.length) {
+  if (!firebaseApp) {
     firebaseApp = firebase.initializeApp({
       apiKey: "AIzaSyB2EPNPKMV2ZhzVowFxFGA-mIi2wU1rHCQ",
       authDomain: "ludo-4de39.firebaseapp.com",
@@ -25,12 +24,27 @@ async function getUsers() {
   }
 
   try {
-    const snapshot = await firebaseApp.firestore().collection("users").get();
+    const firestore = firebaseApp.firestore();
+    const snapshot = await firestore.collection("users").get();
     const users = snapshot.docs.map((doc) => ({ id: doc.id, ...doc.data() }));
     return users;
   } catch (error) {
     throw new Error("Failed to fetch users: " + error.message);
   }
+}
+
+async function main() {
+  try {
+    initializeFirebase();
+    const users = await getUsers();
+    console.log("Fetched users:", users);
+  } catch (error) {
+    console.error("Error:", error);
+  }
+}
+
+if (require.main === module) {
+  main();
 }
 
 module.exports = { initializeFirebase, getUsers };
