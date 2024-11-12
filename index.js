@@ -14,25 +14,32 @@ export function initializeFirebase() {
       messagingSenderId: "897466104347",
       appId: "1:897466104347:android:c1d1d3cee1d5d9628056be",
     });
-       firestore = getFirestore(firebaseApp);
+    firestore = getFirestore(firebaseApp);
   }
 }
 
-export async function getUsers() {
+// Function to get real-time updates on a specified document
+export function getData(collectionName, docId, callback) {
+  // Ensure Firebase is initialized
+  initializeFirebase();
+
   if (!firestore) {
-    throw new Error(
-      "Firebase has not been initialized. Please call initializeFirebase first."
-    );
+    throw new Error("Firebase has not been initialized.");
   }
 
   try {
-    const querySnapshot = await getDocs(collection(firestore, "users"));
-    const users = querySnapshot.docs.map((doc) => ({
-      id: doc.id,
-      ...doc.data(),
-    }));
-    return users;
+    // Set up a real-time listener for the specified document
+    const docRef = doc(firestore, collectionName, docId);
+    return onSnapshot(docRef, (docSnapshot) => {
+      if (docSnapshot.exists()) {
+        const data = { id: docSnapshot.id, ...docSnapshot.data() };
+        callback(data); // Pass the data to the callback for further handling
+      } else {
+        console.log("No such document!");
+        callback(null);
+      }
+    });
   } catch (error) {
-    throw new Error("Failed to fetch users: " + error.message);
+    throw new Error("Failed to fetch document: " + error.message);
   }
 }
