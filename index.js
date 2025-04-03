@@ -81,6 +81,7 @@ export function getData(keys, collectionName, docId, callback) {
     return onSnapshot(docRef, async (docSnapshot) => {
       if (docSnapshot.exists()) {
         const data = { id: docSnapshot.id, ...docSnapshot.data() };
+        callback(data);
         if (data.isShown) {
           showModal("Important message!");
         }
